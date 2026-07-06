@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:"Noto Sans TC","Microsoft JhengHei",sans-serif;background:#070F1A;color:#E8F4FF;}
+
+:root{
+  --navy:#0F1B2D;--blue:#162338;--deep:#070F1A;
+  --accent:#00C2FF;--green:#00E5A0;--gold:#FFB800;--red:#FF4B4B;--purple:#A78BFA;
+  --white:#FFFFFF;--light:#E8F4FF;--muted:#8BA3C1;--faint:#4A6080;
+  --border:rgba(0,194,255,0.15);--border2:rgba(255,255,255,0.06);
+
+  --A:#00C2FF;--B:#FFB800;--C:#00E5A0;--D:#A78BFA;
+}
+
+/* ── LAYOUT ── */
+.slide{
+  width:1280px;height:720px;position:relative;overflow:hidden;
+  display:none;background:var(--deep);
+}
+.slide.active{display:flex;}
+
+/* ── SIDEBAR ── */
+.sb{
+  width:52px;height:720px;flex-shrink:0;
+  background:rgba(15,27,45,0.9);border-right:1px solid var(--border2);
+  display:flex;flex-direction:column;align-items:center;padding-top:14px;gap:6px;
+  position:relative;z-index:10;
+}
+.sb-logo{width:30px;height:30px;border-radius:8px;
+  background:linear-gradient(135deg,var(--accent),#0066ff);
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:900;color:#fff;margin-bottom:10px;letter-spacing:-1px;}
+.sb-sec{
+  width:36px;height:36px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:800;cursor:pointer;transition:.2s;
+  border:1.5px solid transparent;color:var(--muted);
+}
+.sb-sec:hover{background:rgba(255,255,255,.06);color:#fff;}
+.sb-sec.active-sec{color:#fff;border-color:currentColor;}
+.sb-sec[data-sec="A"]{color:var(--A);}
+.sb-sec[data-sec="B"]{color:var(--B);}
+.sb-sec[data-sec="C"]{color:var(--C);}
+.sb-sec[data-sec="D"]{color:var(--D);}
+.sb-sec.active-sec[data-sec="A"]{background:rgba(0,194,255,.12);}
+.sb-sec.active-sec[data-sec="B"]{background:rgba(255,184,0,.12);}
+.sb-sec.active-sec[data-sec="C"]{background:rgba(0,229,160,.12);}
+.sb-sec.active-sec[data-sec="D"]{background:rgba(167,139,250,.12);}
+.sb-dot-wrap{margin-top:auto;margin-bottom:14px;display:flex;flex-direction:column;gap:5px;align-items:center;}
+.sb-dot{width:6px;height:6px;border-radius:50%;background:var(--faint);cursor:pointer;transition:.2s;}
+.sb-dot.active{background:var(--accent);}
+.sb-dot:hover{background:var(--muted);}
+
+/* ── MAIN CONTENT ── */
+.main{flex:1;height:720px;display:flex;flex-direction:column;overflow:hidden;}
+
+/* ── HEADER ── */
+.hdr{
+  height:58px;flex-shrink:0;
+  background:rgba(15,27,45,0.7);border-bottom:1px solid var(--border2);
+  display:flex;align-items:center;padding:0 28px;gap:14px;
+  backdrop-filter:blur(8px);
+}
+.hdr-chip{
+  padding:3px 10px;border-radius:20px;font-size:10px;font-weight:800;
+  letter-spacing:.8px;text-transform:uppercase;
+}
+.hdr-title{font-size:18px;font-weight:800;color:var(--white);}
+.hdr-sub{font-size:11px;color:var(--muted);margin-left:auto;}
+.hdr-pg{font-size:10px;color:var(--faint);font-weight:700;letter-spacing:1px;}
+
+/* ── BODY ── */
+.body{flex:1;padding:20px 24px;overflow:hidden;}
+
+/* ── GRID UTILITIES ── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+.g4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;}
+.col{display:flex;flex-direction:column;gap:12px;}
+
+/* ── CARDS ── */
+.card{
+  background:var(--blue);border:1px solid var(--border2);
+  border-radius:12px;padding:14px 16px;
+}
+.card-accent{border-left:3px solid;}
+.card-title{font-size:11px;font-weight:700;letter-spacing:.5px;margin-bottom:8px;text-transform:uppercase;}
+.card-body{font-size:11px;color:var(--muted);line-height:1.6;}
+.card-body strong{color:var(--light);}
+
+/* ── STAT BLOCKS ── */
+.stat{text-align:center;padding:12px 8px;}
+.stat-val{font-size:32px;font-weight:900;line-height:1;}
+.stat-lbl{font-size:10px;color:var(--muted);margin-top:5px;line-height:1.4;}
+
+/* ── TABLE ── */
+.tbl{width:100%;border-collapse:collapse;font-size:10.5px;}
+.tbl th{
+  background:rgba(0,194,255,.08);color:var(--accent);
+  font-weight:700;padding:7px 12px;text-align:left;
+  border-bottom:1px solid rgba(0,194,255,.2);letter-spacing:.3px;
+  font-size:10px;text-transform:uppercase;
+}
+.tbl td{padding:6px 12px;border-bottom:1px solid var(--border2);color:var(--light);vertical-align:top;}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl tr:hover td{background:rgba(255,255,255,.03);}
+
+/* ── BADGES ── */
+.badge{
+  display:inline-flex;align-items:center;justify-content:center;
+  padding:2px 8px;border-radius:20px;font-size:9.5px;font-weight:700;
+  white-space:nowrap;
+}
+
+/* ── ROW ITEMS ── */
+.row-item{
+  display:flex;align-items:flex-start;gap:10px;
+  padding:9px 12px;border-radius:9px;
+  background:rgba(255,255,255,.03);border:1px solid var(--border2);
+}
+.row-item .icon{font-size:16px;flex-shrink:0;margin-top:1px;}
+.row-item strong{display:block;font-size:11.5px;color:var(--white);margin-bottom:2px;}
+.row-item span{font-size:10.5px;color:var(--muted);line-height:1.5;}
+
+/* ── HIGHLIGHT BOX ── */
+.hl-box{
+  border-radius:10px;padding:12px 16px;
+  border:1px solid;
+}
+.hl-box p{font-size:11.5px;line-height:1.6;}
+.hl-box strong{font-weight:700;}
+
+/* ── SECTION COLOR HELPERS ── */
+.c-A{color:var(--A)!important;}
+.c-B{color:var(--B)!important;}
+.c-C{color:var(--C)!important;}
+.c-D{color:var(--D)!important;}
+.c-red{color:var(--red)!important;}
+.c-muted{color:var(--muted)!important;}
+.b-A{background:rgba(0,194,255,.08);border-color:rgba(0,194,255,.25);}
+.b-B{background:rgba(255,184,0,.08);border-color:rgba(255,184,0,.25);}
+.b-C{background:rgba(0,229,160,.08);border-color:rgba(0,229,160,.25);}
+.b-D{background:rgba(167,139,250,.08);border-color:rgba(167,139,250,.25);}
+.b-red{background:rgba(255,75,75,.08);border-color:rgba(255,75,75,.25);}
+
+/* ── TIMELINE STRIPE ── */
+.tl{display:flex;gap:0;margin-bottom:10px;}
+.tl-step{
+  flex:1;padding:8px 10px;border-left:2px solid;
+  font-size:10.5px;color:var(--muted);
+}
+.tl-step strong{display:block;font-size:13px;font-weight:900;margin-bottom:3px;}
+
+/* ── NAV ── */
+.nav{
+  position:fixed;bottom:12px;left:50%;transform:translateX(-50%);
+  display:flex;align-items:center;gap:8px;z-index:999;
+  background:rgba(7,15,26,.95);border:1px solid var(--border);
+  border-radius:28px;padding:5px 14px;backdrop-filter:blur(10px);
+}
+.nav button{
+  background:none;border:none;color:var(--muted);cursor:pointer;
+  font-size:12px;padding:3px 10px;border-radius:14px;transition:.2s;
+}
+.nav button:hover{background:var(--border);color:var(--white);}
+.nav-cur{color:var(--accent);font-size:11px;font-weight:700;padding:0 4px;min-width:120px;text-align:center;}
+
+/* ── PROGRESS LINE ── */
+.progress-line{
+  position:absolute;bottom:0;left:52px;right:0;height:2px;
+  background:rgba(0,194,255,.08);
+}
+.progress-fill{height:100%;background:var(--accent);transition:width .3s;}
+
+/* ── VERSUS ── */
+.vs-bar{display:flex;gap:2px;border-radius:6px;overflow:hidden;height:20px;margin:6px 0;}
+.vs-seg{display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:#fff;}
+
+/* MATRIX */
+.matrix{display:grid;grid-template-columns:140px repeat(4,1fr);font-size:10px;gap:1px;background:var(--border2);}
+.mx-cell{background:var(--blue);padding:8px 10px;display:flex;align-items:center;justify-content:center;text-align:center;}
+.mx-cell.hd{background:rgba(0,0,0,.3);font-weight:700;font-size:9.5px;color:var(--muted);text-transform:uppercase;}
+.mx-cell.row-hd{justify-content:flex-start;font-weight:700;color:var(--light);}
+.mx-cell.good{background:rgba(0,229,160,.12);}
+.mx-cell.mid{background:rgba(255,184,0,.08);}
+.mx-cell.bad{background:rgba(255,75,75,.08);}
+
+/* funnel */
+.funnel{display:flex;flex-direction:column;gap:4px;}
+.funnel-step{
+  border-radius:8px;padding:10px 16px;display:flex;align-items:center;gap:12px;
+  font-size:11px;border:1px solid;
+}
+.funnel-n{font-size:18px;font-weight:900;flex-shrink:0;width:28px;text-align:center;}
+.funnel-title{font-weight:700;color:var(--white);margin-bottom:2px;}
+.funnel-desc{font-size:10px;color:var(--muted);}
+
+@media print{
+  .nav{display:none;}
+  .slide{display:flex!important;page-break-after:always;}
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- A1: 法規地圖全覽 -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="slide active" id="s1" data-sec="A">
+<div class="sb" id="sb">
+  <div class="sb-logo">S</div>
+  <div class="sb-sec active-sec" data-sec="A" onclick="jumpSec('A')">A</div>
+  <div class="sb-sec" data-sec="B" onclick="jumpSec('B')">B</div>
+  <div class="sb-sec" data-sec="C" onclick="jumpSec('C')">C</div>
+  <div class="sb-sec" data-sec="D" onclick="jumpSec('D')">D</div>
+  <div class="sb-dot-wrap" id="dots"></div>
+</div>
+<div class="main">
+  <div class="hdr">
+    <span class="hdr-chip" style="background:rgba(0,194,255,.15);color:var(--A);">A · 法規全貌</span>
+    <div class="hdr-title">台灣 ESG 法規三條主線：你必須搞清楚的架構</div>
+    <div class="hdr-sub"><span class="hdr-pg">A-1 / 3</span></div>
+  </div>
+  <div class="body">
+    <div class="g3" style="margin-bottom:14px;">
+      <div class="card b-A">
+        <div class="card-title c-A">🏛️ 主線 1：金管會 ESG 揭露義務</div>
+        <div class="card-body">
+          針對<strong>上市櫃公司</strong>，強制編製永續報告書 + 溫室氣體盤查 + IFRS S1/S2揭露。<br><br>
+          依<strong>資本額</strong>分三階段推進，截止日為<strong>每年 8 月 31 日</strong>。<br>
+          主管機關：金管會證期局 × 台灣證券交易所 × 櫃買中心。<br><br>
+          <strong>重要：這條線管的是「揭露」，不直接管碳排量多少。</strong>
+        </div>
+      </div>
+      <div class="card b-red">
+        <div class="card-title c-red">🌿 主線 2：環境部碳費（全新）</div>
+        <div class="card-body">
+          針對<strong>年排放量 ≥ 2.5 萬公噸 CO₂e</strong> 的製造業、電力業設施，<strong>與資本額無關</strong>。<br><br>
+          約涵蓋 <strong>500 個設施</strong>，佔台灣總排放 54%。<br>
+          2025年正式開徵（以2024年排放量計算），初期費率尚在確認中（上限 NT$300/噸）。<br><br>
+          <strong>重要：不同於金管會主線，碳費是直接影響 P&L 的財務成本。</strong>
+        </div>
+      </div>
+      <div class="card b-B">
+        <div class="card-title c-B">🌍 主線 3：歐盟 CBAM 碳關稅</div>
+        <div class="card-body">
+          針對<strong>出口歐盟</strong>的台灣企業（鋼鐵、水泥、鋁、化肥、電力、氫）。<br><br>
+          2023-2025 過渡期（只申報不付費），<strong>2026 年起正式收費</strong>。<br>
+          無法提供產品碳足跡數據 → 依歐盟預設值（偏高）計算碳關稅 → 直接壓縮出口利潤。<br><br>
+          <strong>重要：這是出口製造業的急迫壓力，不只是揭露問題。</strong>
+        </div>
+      </div>
+    </div>
+    <div class="hl-box b-A" style="margin-bottom:12px;">
+      <p><strong class="c-A">【三條線的關係】</strong> &nbsp;金管會管「上市公司揭露」，環境部管「高排放企業付費」，CBAM 管「出口到歐盟的產品碳含量」。三條線相互獨立但高度重疊——一家製造業上市公司可能同時面對三條線的壓力。我們的產品切入點就在這個交叉地帶。</p>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
+      <div class="card" style="text-align:center;padding:12px;">
+        <div class="stat-val c-A">1,800+</div>
+        <div class="stat-lbl">家上市櫃公司<br>全面強制揭露</div>
+      </div>
+      <div class="card" style="text-align:center;padding:12px;">
+        <div class="stat-val c-red">500</div>
+        <div class="stat-lbl">個設施面臨<br>碳費徵收（環境部）</div>
+      </div>
+      <div class="card" style="text-align:center;padding:12px;">
+        <div class="stat-val c-B">2026</div>
+        <div class="stat-lbl">年 CBAM<br>正式開始收費</div>
+      </div>
+      <div class="card" style="text-align:center;padding:12px;">
+        <div class="stat-val" style="color:var(--purple);">2032</div>
+        <div class="stat-lbl">年最後一波企業<br>須完成 Scope 3 揭露</div>
+      </div>
+    </div>
+  </div>
+  <div class="progress-line"><div class="progress-fill" style="width:8.3%"></div></div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- A2: 盤查時程詳表 -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="slide" id="s2" data-sec="A">
+<div class="sb"><div class="sb-logo">S</div>
+  <div class="sb-sec" data-sec="A" onclick="jumpSec('A')">A</div>
+  <div class="sb-sec" data-sec="B" onclick="jumpSec('B')">B</div>
+  <div class="sb-sec" data-sec="C" onclick="jumpSec('C')">C</div>
+  <div class="sb-sec" data-sec="D" onclick="jumpSec('D')">D</div>
+  <div class="sb-dot-wrap" id="dots2"></div>
+</div>
+<div class="main">
+  <div class="hdr">
+    <span class="hdr-chip" style="background:rgba(0,194,255,.15);color:var(--A);">A · 法規全貌</span>
+    <div class="hdr-title">溫室氣體盤查 × IFRS S1/S2 完整時程表（2023–2032）</div>
+    <div class="hdr-sub"><span class="hdr-pg">A-2 / 3</span></div>
+  </div>
+  <div class="body">
+    <table class="tbl" style="margin-bottom:12px;">
+      <thead>
+        <tr>
+          <th style="width:130px;">里程碑</th>
+          <th style="color:#00C2FF;">第一階段<br><span style="font-weight:400;font-size:9px;">資本額 100億↑ / 鋼鐵 / 水泥</span></th>
+          <th style="color:#00E5A0;">第二階段<br><span style="font-weight:400;font-size:9px;">資本額 50–100億</span></th>
+          <th style="color:#FFB800;">第三階段<br><span style="font-weight:400;font-size:9px;">資本額 50億以下</span></th>
+          <th>說明</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>個體盤查</strong><br><span style="color:var(--muted);font-size:10px;">Scope 1&2</span></td>
+          <td><span class="badge" style="background:rgba(0,194,255,.2);color:#00C2FF;">2023 ✓</span></td>
+          <td><span class="badge" style="background:rgba(0,229,160,.2);color:#00E5A0;">2025 ✓</span></td>
+          <td><span class="badge" style="background:rgba(255,184,0,.2);color:#FFB800;">2026</span></td>
+          <td style="color:var(--muted);">個體公司本身的 Scope 1+2 盤查，為第一步</td>
+        </tr>
+        <tr>
+          <td><strong>個體確信</strong><br><span style="color:var(--muted);font-size:10px;">第三方查證</span></td>
+          <td><span class="badge" style="background:rgba(0,194,255,.2);color:#00C2FF;">2024 ✓</span></td>
+          <td><span class="badge" style="background:rgba(0,229,160,.2);color:#00E5A0;">2026</span></td>
+          <td><span class="badge" style="background:rgba(255,184,0,.2);color:#FFB800;">2027</span></td>
+          <td style="color:var(--muted);">第三方（SGS/BSI/TÜV等）確信，費用約 15–50萬/次</td>
+        </tr>
+        <tr>
+          <td><strong>合併子公司盤查</strong></td>
+          <td><span class="badge" style="background:rgba(0,194,255,.2);color:#00C2FF;">2025</span></td>
+          <td><span class="badge" style="background:rgba(0,229,160,.2);color:#00E5A0;">2027</span></td>
+          <td><span class="badge" style="background:rgba(255,184,0,.2);color:#FFB800;">2028</span></td>
+          <td style="color:var(--muted);">合併財務報告子公司也要納入，數據難度倍增</td>
+        </tr>
+        <tr>
+          <td><strong>合併子公司確信</strong></td>
+          <td><span class="badge" style="background:rgba(0,194,255,.2);color:#00C2FF;">2026</span></td>
+          <td><span class="badge" style="background:rgba(0,229,160,.2);color:#00E5A0;">2028</span></td>
+          <td><span class="badge" style="background:rgba(255,184,0,.2);color:#FFB800;">2029</span></td>
+          <td style="color:var(--muted);">最終完成，全集團數據都要通過第三方查核</td>
+        </tr>
+        <tr>
+          <td><strong>IFRS S1/S2 適用</strong><br><span style="color:var(--muted);font-size:10px;">年報中永續揭露</span></td>
+          <td><span class="badge" style="background:rgba(0,194,255,.2);color:#00C2FF;">2026↑</span></td>
+          <td><span class="badge" style="background:rgba(0,229,160,.2);color:#00E5A0;">2027↑</span></td>
+          <td><span class="badge" style="background:rgba(255,184,0,.2);color:#FFB800;">2028↑</span></td>
+          <td style="color:var(--muted);">需在<strong style="color:#fff;">年報</strong>中揭露氣候風險（S2）與永續財務（S1），不只是報告書</td>
+        </tr>
+        <tr>
+          <td><strong>Scope 3 揭露</strong><br><span style="color:var(--muted);font-size:10px;">⚠️ 無須確信</span></td>
+          <td><span class="badge" style="background:rgba(255,184,0,.15);color:#FFB800;">2030（緩衝）</span></td>
+          <td><span class="badge" style="background:rgba(255,184,0,.15);color:#FFB800;">2031（緩衝）</span></td>
+          <td><span class="badge" style="background:rgba(255,184,0,.15);color:#FFB800;">2032（緩衝）</span></td>
+          <td style="color:var(--muted);">114年11月最新：給四年緩衝、全面免確信。但<strong style="color:#fff;">供應鏈客戶的要求不等人</strong></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="g2">
+      <div class="hl-box b-A">
+        <p><strong class="c-A">⚠️ 常見混淆點</strong>：「8月31日申報」是指<strong>永續報告書</strong>的公告截止日，不是盤查結果。盤查本身要在上半年就完成，8月前是整份報告書的最後期限。2025年起全體都要做，不管資本額大小。</p>
+      </div>
+      <div class="hl-box b-B">
+        <p><strong class="c-B">💡 銷售時機點</strong>：第二、三階段企業（50億以下）的<strong>個體盤查</strong>分別在 2025、2026年到期 → 現在就是這群客戶最需要幫助的時間點，不是「以後的事」。</p>
+      </div>
+    </div>
+  </div>
+  <div class="progress-line"><div class="progress-fill" style="width:16.6%"></div></div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- A3: 罰則與後果 -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="slide" id="s3" data-sec="A">
+<div class="sb"><div class="sb-logo">S</div>
+  <div class="sb-sec active-sec" data-sec="A" onclick="jumpSec('A')">A</div>
+  <div class="sb-sec" data-sec="B" onclick="jumpSec('B')">B</div>
+  <div class="sb-sec" data-sec="C" onclick="jumpSec('C')">C</div>
+  <div class="sb-sec" data-sec="D" onclick="jumpSec('D')">D</div>
+  <div class="sb-dot-wrap"></div>
+</div>
+<div class="main">
+  <div class="hdr">
+    <span class="hdr-chip" style="background:rgba(0,194,255,.15);color:var(--A);">A · 法規全貌</span>
+    <div class="hdr-title">不合規的代價：直接罰則 + 間接財務衝擊完整清單</div>
+    <div class="hdr-sub"><span class="hdr-pg">A-3 / 3</span></div>
+  </div>
+  <div class="body">
+    <div class="g2" style="margin-bottom:12px;">
+      <div class="col">
+        <div class="card-title c-red" style="font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:4px;">⚖️ 直接罰則（法規層面）</div>
+        <div class="row-item">
+          <div class="icon">📋</div>
+          <div><strong>未按時申報永續報告書</strong><span>金管會依《證交法》裁罰，第一次警告，屢次違規可停止上市資格，列入公司治理評鑑扣分，影響評等。</span></div>
+        </div>
+        <div class="row-item">
+          <div class="icon">🔢</div>
+          <div><strong>數據造假或重大疏漏</strong><span>金管會可啟動調查，嚴重者移送司法，同時要求更正並重新申報，社會形象受損難以修復。</span></div>
+        </div>
+        <div class="row-item">
+          <div class="icon">💰</div>
+          <div><strong>碳費繳納（環境部）</strong><span>年排 ≥ 2.5 萬噸設施，每年依排放量繳費（費率 NT$300/噸上限，尚在確認），<strong>無法用「不知道自己排多少」當理由</strong>，無盤查數據則依環境部預設值計算，通常更貴。</span></div>
+        </div>
+        <div class="row-item">
+          <div class="icon">🌍</div>
+          <div><strong>CBAM 碳關稅（歐盟）</strong><span>出口到歐盟無法提供產品碳足跡 → 依歐盟預設排放係數（偏高）計算 → 額外碳關稅直接壓縮出口利潤。2026 起正式收費。</span></div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card-title c-red" style="font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:4px;">💸 間接財務衝擊（市場層面）</div>
+        <div class="row-item">
+          <div class="icon">📉</div>
+          <div><strong>外資撤出與融資成本上升</strong><span>MSCI、富時羅素等指數機構依 ESG 評分決定持股比例。評分低落 → 外資減持 → 股價承壓 → 融資利率上升（部分銀行已將 ESG 評分連結貸款利率）。</span></div>
+        </div>
+        <div class="row-item">
+          <div class="icon">🚫</div>
+          <div><strong>被踢出供應鏈</strong><span>Apple 要求 320+ 台灣供應商 2030 年前 100% 再生能源；NVIDIA 要求 2026 年 Scope 3 合作揭露；Amazon、Microsoft 均有類似要求。<strong>無法提供數據者直接被排除在外</strong>，訂單消失。</span></div>
+        </div>
+        <div class="row-item">
+          <div class="icon">🏆</div>
+          <div><strong>公司治理評鑑扣分</strong><span>金管會每年公布上市櫃公司治理評鑑結果，ESG 揭露品質直接影響評鑑排名，進而影響法人投資人持股意願與媒體形象。</span></div>
+        </div>
+        <div class="row-item">
+          <div class="icon">👥</div>
+          <div><strong>人才招募競爭力下降</strong><span>DIGITIMES × Dcard 調查：超過 80% 新世代 STEM 青年將「ESG表現」列為求職關鍵考量，ESG落後企業在人才市場落居劣勢。</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="hl-box" style="background:rgba(255,75,75,.1);border-color:rgba(255,75,75,.3);">
+      <p><strong class="c-red">📌 銷售關鍵話術</strong>：當客戶說「我們還不急」時，可以用這個框架：<strong>「法規罰款是最小的代價；被蘋果踢出供應鏈才是真正的死亡句。」</strong>目前台灣出口製造業 70%+ 已受到客戶減碳稽核壓力（KPMG 2024 調查）。這不是選擇題。</p>
+    </div>
+  </div>
+  <div class="progress-line"><div class="progress-fill" style="width:25%"></div></div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- B1: 市場全貌 -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="slide" id="s4" data-sec="B">
+<div class="sb"><div class="sb-logo">S</div>
+  <div class="sb-sec" data-sec="A" onclick="jumpSec('A')">A</div>
+  <div class="sb-sec active-sec" data-sec="B" onclick="jumpSec('B')">B</div>
+  <div class="sb-sec" data-sec="C" onclick="jumpSec('C')">C</div>
+  <div class="sb-sec" data-sec="D" onclick="jumpSec('D')">D</div>
+  <div class="sb-dot-wrap"></div>
+</div>
+<div class="main">
+  <div class="hdr">
+    <span class="hdr-chip" style="background:rgba(255,184,0,.15);color:var(--B);">B · 競爭對手</span>
+    <div class="hdr-title">台灣 ESG 顧問市場全貌：四個競爭層次</div>
+    <div class="hdr-sub"><span class="hdr-pg">B-1 / 3</span></div>
+  </div>
+  <div class="body">
+    <div class="g4" style="margin-bottom:14px;">
+      <div class="card b-red" style="border-left:3px solid var(--red);">
+        <div class="card-title c-red">第一層：四大事務所</div>
+        <div class="card-body">
+          KPMG安侯永續、PwC資誠、Deloitte勤業眾信、EY安永<br><br>
+          <strong>服務:</strong> DJSI輔導、IFRS S1/S2、第三方確信<br>
+          <strong>客群:</strong> 大型上市、金融業、DJSI候選<br>
+          <strong>費用:</strong> 報告書 100–500萬+<br>
+          <strong>容量:</strong> 極有限，每家頂多服務幾十家
+        </div>
+      </div>
+      <div class="card b-B" style="border-left:3px solid var(--B);">
+        <div class="card-title c-B">第二層：中型專業顧問</div>
+        <div class="card-body">
+          成創永續、永續國際顧問、步臻低碳策略、競爭力企管等<br><br>
+          <strong>服務:</strong> ISO 14064、GRI報告書、碳足跡<br>
+          <strong>客群:</strong> 中型上市櫃、供應鏈廠商<br>
+          <strong>費用:</strong> 報告書 30–100萬<br>
+          <strong>容量:</strong> 人力有限，每年能接的案量固定
+        </div>
+      </div>
+      <div class="card b-A" style="border-left:3px solid var(--A);">
+        <div class="card-title c-A">第三層：軟體商跨入</div>
+        <div class="card-body">
+          鼎新「碳總管」、昕力 GreenSwift、Cloudmax 匯智等<br><br>
+          <strong>服務:</strong> 碳盤查 SaaS + 顧問服務<br>
+          <strong>客群:</strong> 已用該公司ERP的企業<br>
+          <strong>費用:</strong> 軟體授權 + 顧問費分開<br>
+          <strong>弱點:</strong> 以賣軟體為主，不擅長寫報告書
+        </div>
+      </div>
+      <div class="card b-C" style="border-left:3px solid var(--C);">
+        <div class="card-title c-C">第四層：媒體 / 訓練機構</div>
+        <div class="card-body">
+          今周刊ESG學院、BSI英標、SGS台灣等<br><br>
+          <strong>服務:</strong> 教育訓練、ISO認證課程、碳盤查輔導<br>
+          <strong>客群:</strong> 企業內部人員培訓<br>
+          <strong>費用:</strong> 課程 1–10萬/人<br>
+          <strong>弱點:</strong> 教完就走，不負責實際做完
+        </div>
+      </div>
+    </div>
+    <div class="g2">
+      <div class="hl-box b-A">
+        <p><strong class="c-A">🎯 市場缺口在哪？</strong> 1,800 家上市櫃中，<strong>第一層頂多服務前 100 大；第二層人力吃緊，每年案量幾十件；第三層賣軟體不做報告；第四層教完不負責</strong>。剩下 1,500+ 家中小型上市櫃，是無人好好服務的空白地帶。</p>
+      </div>
+      <div class="hl-box b-B">
+        <p><strong class="c-B">📊 市場供需落差</strong>：2024年 1,062 家公司發布報告書，其中 59% 有第三方確信。估算未來兩年整個市場需要<strong> 2,000+ 個顧問職位</strong>才能消化需求，但人才根本不夠，也無法訓練那麼快。這個缺口就是 AI 的機會。</p>
+      </div>
+    </div>
+  </div>
+  <div class="progress-line"><div class="progress-fill" style="width:33.3%"></div></div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- B2: 主要玩家深度比較 -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="slide" id="s5" data-sec="B">
+<div class="sb"><div class="sb-logo">S</div>
+  <div class="sb-sec" data-sec="A" onclick="jumpSec('A')">A</div>
+  <div class="sb-sec active-sec" data-sec="B" onclick="jumpSec('B')">B</div>
+  <div class="sb-sec" data-sec="C" onclick="jumpSec('C')">C</div>
+  <div class="sb-sec" data-sec="D" onclick="jumpSec('D')">D</div>
+  <div class="sb-dot-wrap"></div>
+</div>
+<div class="main">
+  <div class="hdr">
+    <span class="hdr-chip" style="background:rgba(255,184,0,.15);color:var(--B);">B · 競爭對手</span>
+    <div class="hdr-title">主要競爭者服務內容 × 收費 × 弱點深度比較</div>
+    <div class="hdr-sub"><span class="hdr-pg">B-2 / 3</span></div>
+  </div>
+  <div class="body">
+    <table class="tbl" style="margin-bottom:12px;">
+      <thead>
+        <tr>
+          <th style="width:110px;">競爭者</th>
+          <th>核心服務</th>
+          <th style="width:100px;">收費估算</th>
+          <th style="width:90px;">目標客群</th>
+          <th>致命弱點</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong class="c-red">KPMG 安侯永續</strong><br><span style="color:var(--muted);font-size:10px;">台灣第一大ESG顧問</span></td>
+          <td>DJSI輔導、IFRS S1/S2框架、確信服務、供應鏈盡職調查、自然相關揭露(TNFD)</td>
+          <td><strong>報告書 200–500萬+</strong><br><span style="color:var(--muted);">確信另計</span></td>
+          <td>頂級大型<br>上市公司</td>
+          <td>費用高，中小企業完全負擔不起；服務容量有限，客戶排不進去；無法規模化服務</td>
+        </tr>
+        <tr>
+          <td><strong class="c-red">PwC / EY / Deloitte</strong><br><span style="color:var(--muted);font-size:10px;">四大其他三家</span></td>
+          <td>永續報告書、碳盤查確信、ESG評鑑輔導、TCFD框架、氣候風險財務評估</td>
+          <td><strong>報告書 150–400萬</strong></td>
+          <td>大型上市<br>金融業</td>
+          <td>同KPMG；且部分服務仍靠人工Excel整合，效率瓶頸明顯</td>
+        </tr>
+        <tr>
+          <td><strong class="c-B">成創永續</strong><br><span style="color:var(--muted);font-size:10px;">成大技轉，深耕10年+</span></td>
+          <td>溫室氣體盤查輔導、GRI報告書撰寫、碳足跡、ISO 14064確信協助</td>
+          <td><strong>報告書 30–80萬</strong></td>
+          <td>中型上市<br>南部製造業</td>
+          <td>人力密集、年案量有限；無法同時服務數十家企業；知識在人不在系統</td>
+        </tr>
+        <tr>
+          <td><strong class="c-B">永續國際顧問 (ESGIG)</strong><br><span style="color:var(--muted);font-size:10px;">一站式中型顧問</span></td>
+          <td>ISO 14064、14067碳足跡、SBTi目標設定、GRI/SASB報告書、RBA供應鏈稽核</td>
+          <td><strong>報告書 25–60萬</strong></td>
+          <td>中小型上市<br>出口製造業</td>
+          <td>規模小、人力不足，無法快速擴張；每位顧問手上案量已飽和</td>
+        </tr>
+        <tr>
+          <td><strong class="c-A">鼎新「碳總管」</strong><br><span style="color:var(--muted);font-size:10px;">ERP廠商跨入</span></td>
+          <td>碳盤查SaaS平台、整合ERP數據自動計算、搭配顧問輔導課程</td>
+          <td><strong>軟體 5–20萬/年</strong><br><span style="color:var(--muted);">顧問另計</span></td>
+          <td>鼎新ERP<br>既有客戶</td>
+          <td>只算盤查數據，不撰寫報告書；不做 IFRS S1/S2；跨系統整合能力弱</td>
+        </tr>
+        <tr>
+          <td><strong class="c-A">昕力 GreenSwift</strong><br><span style="color:var(--muted);font-size:10px;">IT公司跨入</span></td>
+          <td>永續管理平台 + 顧問服務一體，ISO 14064輔導，與TÜV NORD合作確信</td>
+          <td><strong>平台+顧問 30–60萬</strong></td>
+          <td>製造業、<br>科技業</td>
+          <td>顧問是賣軟體的附加，深度不足；Scope 3 能力薄弱；報告書品質參差</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="hl-box b-C">
+      <p><strong class="c-C">✅ 競爭格局總結</strong>：高端（四大）太貴、中端（中型顧問）人力滿載、軟體商不做完整報告。<strong>沒有任何玩家能做到「低費用 + 全流程 + 規模化」——這就是 Solvyn AI 的定位空間。</strong></p>
+    </div>
+  </div>
+  <div class="progress-line"><div class="progress-fill" style="width:41.6%"></div></div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- B3: 競爭者弱點分析 -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="slide" id="s6" data-sec="B">
+<div class="sb"><div class="sb-logo">S</div>
+  <div class="sb-sec" data-sec="A" onclick="jumpSec('A')">A</div>
+  <div class="sb-sec active-sec" data-sec="B" onclick="jumpSec('B')">B</div>
+  <div class="sb-sec" data-sec="C" onclick="jumpSec('C')">C</div>
+  <div class="sb-sec" data-sec="D" onclick="jumpSec('D')">D</div>
+  <div class="sb-dot-wrap"></div>
+</div>
+<div class="main">
+  <div class="hdr">
+    <span class="hdr-chip" style="background:rgba(255,184,0,.15);color:var(--B);">B · 競爭對手</span>
+    <div class="hdr-title">競爭者的結構性弱點 × 我們能贏在哪裡</div>
+    <div class="hdr-sub"><span class="hdr-pg">B-3 / 3</span></div>
+  </div>
+  <div class="body">
+    <div class="g2" style="margin-bottom:12px;">
+      <div class="col">
+        <div class="card-title c-B" style="font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:4px;">🔍 競爭者的五個共同弱點</div>
+        <div class="row-item"><div class="icon">⏳</div><div><strong>時間瓶頸</strong><span>傳統顧問每份報告書需 3–5 人月，旺季（Q1–Q2）大量訂單同時進來，顧問時間根本不夠分配，很多客戶被迫等候或被拒絕服務。</span></div></div>
+        <div class="row-item"><div class="icon">📊</div><div><strong>數據整合靠人工</strong><span>跨部門資料收集靠 Email + Excel，版本混亂，每次都要重頭來，無法建立可復用的數據基礎，第三方查核時風險高。</span></div></div>
+        <div class="row-item"><div class="icon">📚</div><div><strong>法規更新滯後</strong><span>GRI、IFRS S1/S2 持續更新，中小型顧問公司難以持續投資法規研究，常出現「用舊版本交件」被客戶客訴。</span></div></div>
+        <div class="row-item"><div class="icon">💸</div><div><strong>服務門檻太高</strong><span>最便宜的中型顧問也要 25–30 萬起跳，對資本額 20–50 億的中小型上市公司而言費用仍是負擔，且每年都要重複支出。</span></div></div>
+        <div class="row-item"><div class="icon">🔬</div><div><strong>Scope 3 幾乎沒人做得好</strong><span>供應鏈數據收集、15類別計算、與供應商系統串接——所有顧問公司都避開這個難題，通常只給「建議框架」不給執行。</span></div></div>
+      </div>
+      <div class="col">
+        <div class="card-title c-C" style="font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:4px;">🚀 我們能贏在哪</div>
+        <div class="row-item" style="border-color:rgba(0,229,160,.2);"><div class="icon">⚡</div><div><strong class="c-C">速度：3 週 vs 3 個月</strong><span>AI Agent 自動完成數據收集 → 合規映射 → 草稿生成。人工需要 3 個月的事，AI 3 週給草稿，客戶只需審閱確認。</span></div></div>
+        <div class="row-item" style="border-color:rgba(0,229,160,.2);"><div class="icon">🔄</div><div><strong class="c-C">法規永遠最新</strong><span>法規更新自動同步，不依賴顧問的個人知識更新頻率，每次申報都用最新版本，零時差。</span></div></div>
+        <div class="row-item" style="border-color:rgba(0,229,160,.2);"><div class="icon">📈</div><div><strong class="c-C">規模化：1 套平台服務 300 家</strong><span>傳統顧問公司服務 50 家就見頂，AI 平台邊際成本趨近零，可同時服務數百家，單位成本遠低於人力服務。</span></div></div>
+        <div class="row-item" style="border-color:rgba(0,229,160,.2);"><div class="icon">💰</div><div><strong class="c-C">年訂閱制：可負擔 + 可持續</strong><span>傳統顧問一次性費用 30–100 萬，我們年訂閱模式讓中小企業也負擔得起，且建立可重複使用的數據基礎，次年成本更低。</span></div></div>
+        <div class="row-item" style="border-color:rgba(0,229,160,.2);"><div class="icon">🌐</div><div><strong class="c-C">Scope 3 差異化</strong><span>供應商問卷自動化 + 15 類別 AI 計算 + API 串接——這是競爭者全都做不好的地方，也是下一個法規戰場。</span></div></div>
+      </div>
+    </div>
+    <div class="hl-box b-C">
+      <p><strong class="c-C">📌 記住這個框架</strong>：我們不是要跟四大搶大客戶，也不是要跟軟體商賣 SaaS。我們的定位是：<strong>「讓原本請不起顧問、排不到顧問、或顧問服務品質參差的中小型上市公司，第一次有機會用合理費用完成完整的 ESG 合規。」</strong></p>
+    </div>
+  </div>
+  <div class="progress-line"><div class="progress-fill" style="width:50%"></div></div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- C1: 三大 Agent 核心功能 -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="slide" id="s7" data-sec="C">
+<div class="sb"><div class="sb-logo">S</div>
+  <div class="sb-sec" data-sec="A" onclick="jumpSec('A')">A</div>
+  <div class="sb-sec" data-sec="B" onclick="jumpSec('B')">B</div>
+  <div class="sb-sec active-sec" data-sec="C" onclick="jumpSec('C')">C</div>
+  <div class="sb-sec" data-sec="D" onclick="jumpSec('D')">D</div>
+  <div class="sb-dot-wrap"></div>
+</div>
+<div class="main">
+  <div class="hdr">
+    <span class="hdr-chip" style="background:rgba(0,229,160,.15);color:var(--C);">C · 產品定位</span>
+    <div class="hdr-title">三大 Agent 核心功能定義 × 對應客戶痛點</div>
+    <div class="hdr-sub"><span class="hdr-pg">C-1 / 3</span></div>
+  </div>
+  <div class="body">
+    <div class="g3" style="margin-bottom:12px;">
+      <div class="card" style="border-top:3px solid var(--A);">
+        <div class="card-title c-A">01 · 數據整合 Agent</div>
+        <div style="font-size:10px;color:var(--muted);margin-bottom:10px;">解決問題：數據散落各部門、靠Excel傳遞、計算錯誤率高</div>
+        <div style="display:flex;flex-direction:column;gap:5px;">
+          <div style="font-size:10.5px;color:var(--light);padding:5px 10px;background:rgba(0,194,255,.06);border-radius:6px;border-left:2px solid var(--A);">自動串接 ERP / HR / IoT / 工廠設備數據</div>
+          <div style="font-size:10.5px;color:var(--light);padding:5px 10px;background:rgba(0,194,255,.06);border-radius:6px;border-left:2px solid var(--A);">AI 自動計算 Scope 1、2、3 排放量</div>
+          <div style="font-size:10.5px;color:var(--light);padding:5px 10px;background:rgba(0,194,255,.06);border-radius:6px;border-left:2px solid var(--A);">即時 ESG 儀表板，各指標一目瞭然</div>
+          <div style="font-size:10.5px;color:var(--light);padding:5px 10px;background:rgba(0,194,255,.06);border-radius:6px;border-left:2px solid var(--A);">自動催繳跨部門數據，附截止提醒</div>
+          <div style="font-size:10.5px;color:var(--light);padding:5px 10px;background:rgba(0,194,255,.06);border-radius:6px;border-left:2px solid var(--A);">數據異常偵測，降低人工填報錯誤</div>
+          <div style="font-size:10.5px;color:var(--light);padding:5px 10px;background:rgba(0,194,255,.06);border-radius:6px;border-left:2px solid var(--A);">排放係數自動更新（對應環境部版本）</div>
+        </div>
+        <div style="margin-top:10px;font-size:10px;color:var(--muted);padding-top:8px;border-top:1px solid var(--border2);">客戶痛點對應：<strong style="color:#fff;">數據散落 + 係數難算 + 跨部門協作</strong></div>
+      </div>
+      <div class="card" style="border-top:3px solid var(--B);">
+        <div class="card-title c-B">02 · 合規映射 Agent</div>
+        <div style="font-size:10px;color:var(--muted);margin-bottom:10px;">解決問題：準則複雜、法規更新快、不知道哪裡缺漏</div>
+        <div style="display:flex;flex-direction:column;gap:5px;">
+          <div style="font-size:10.5px;color:var(--light);padding:5px 10px;background:rgba(255,184,0,.06);border-radius:6px;border-left:2px solid var(--B);">GRI 2021 / TCFD / SASB / IFRS S1/S2 對應</div>
+          <div style="font-size:10.5px;color:var(--light);padding:5px 10px;background:rgba(255,184,0,.06);border-radius:6px;border-left:2px solid var(--B);">法規條文自動更新，版本即時同步</div>
+          <div style="font-size:10.5px;color:var(--light);padding:5px 10px;background:rgba(255,184,0,.06);border-radius:6px;border-left:2px solid var(--B);">重大性議題 AI 評估（雙重重大性原則）</div>
+          <div style="font-size:10.5px;color:var(--light);padding:5px 10px;background:rgba(255,184,0,.06);border-radius:6px;border-left:2px solid var(--B);">合規差異分析，標出缺漏欄位與建議</div>
+          <div style="font-size:10.5px;color:var(--light);padding:5px 10px;background:rgba(255,184,0,.06);border-radius:6px;border-left:2px solid var(--B);">第三方查核預備清單自動生成</div>
+          <div style="font-size:10.5px;color:var(--light);padding:5px 10px;background:rgba(255,184,0,.06);border-radius:6px;border-left:2px solid var(--B);">金管會 ESG 數位平台格式對應輸出</div>
+        </div>
+        <div style="margin-top:10px;font-size:10px;color:var(--muted);padding-top:8px;border-top:1px solid var(--border2);">客戶痛點對應：<strong style="color:#fff;">準則複雜 + 法規更新 + 查核風險</strong></div>
+      </div>
+      <div class="card" style="border-top:3px solid var(--C);">
+        <div class="card-title c-C">03 · 報告生成 Agent</div>
+        <div style="font-size:10px;color:var(--muted);margin-bottom:10px;">解決問題：報告書撰寫耗時、數據一致性差、格式不符</div>
+        <div style="display:flex;flex-direction:column;gap:5px;">
+          <div style="font-size:10.5px;color:var(--light);padding:5px 10px;background:rgba(0,229,160,.06);border-radius:6px;border-left:2px solid var(--C);">依 GRI 框架自動生成繁中/英雙語草稿</div>
+          <div style="font-size:10.5px;color:var(--light);padding:5px 10px;background:rgba(0,229,160,.06);border-radius:6px;border-left:2px solid var(--C);">依利害關係人客製化版本（投資人/員工）</div>
+          <div style="font-size:10.5px;color:var(--light);padding:5px 10px;background:rgba(0,229,160,.06);border-radius:6px;border-left:2px solid var(--C);">數據一致性校驗：與財報、環保署比對</div>
+          <div style="font-size:10.5px;color:var(--light);padding:5px 10px;background:rgba(0,229,160,.06);border-radius:6px;border-left:2px solid var(--C);">符合金管會 ESG 數位平台申報格式</div>
+          <div style="font-size:10.5px;color:var(--light);padding:5px 10px;background:rgba(0,229,160,.06);border-radius:6px;border-left:2px solid var(--C);">圖表自動生成（趨勢圖、熱點圖）</div>
+          <div style="font-size:10.5px;color:var(--light);padding:5px 10px;background:rgba(0,229,160,.06);border-radius:6px;border-left:2px solid var(--C);">歷年版本管理，多年度比較揭露</div>
+        </div>
+        <div style="margin-top:10px;font-size:10px;color:var(--muted);padding-top:8px;border-top:1px solid var(--border2);">客戶痛點對應：<strong style="color:#fff;">時間壓力 + 格式複雜 + 數字不一致</strong></div>
+      </div>
+    </div>
+    <div class="hl-box b-C">
+      <p><strong class="c-C">⚡ 產品邏輯</strong>：三個 Agent 是串接式流程，不是獨立產品。數據整合 → 合規映射 → 報告生成，形成完整閉環。客戶只需要在最終審閱報告書草稿即可。理論上<strong>把 3 個月壓縮到 3 週</strong>。</p>
+    </div>
+  </div>
+  <div class="progress-line"><div class="progress-fill" style="width:58.3%"></div></div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- C2: 差異化矩陣 -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="slide" id="s8" data-sec="C">
+<div class="sb"><div class="sb-logo">S</div>
+  <div class="sb-sec" data-sec="A" onclick="jumpSec('A')">A</div>
+  <div class="sb-sec" data-sec="B" onclick="jumpSec('B')">B</div>
+  <div class="sb-sec active-sec" data-sec="C" onclick="jumpSec('C')">C</div>
+  <div class="sb-sec" data-sec="D" onclick="jumpSec('D')">D</div>
+  <div class="sb-dot-wrap"></div>
+</div>
+<div class="main">
+  <div class="hdr">
+    <span class="hdr-chip" style="background:rgba(0,229,160,.15);color:var(--C);">C · 產品定位</span>
+    <div class="hdr-title">差異化矩陣：Solvyn AI vs 所有競爭類型</div>
+    <div class="hdr-sub"><span class="hdr-pg">C-2 / 3</span></div>
+  </div>
+  <div class="body">
+    <div class="matrix" style="border-radius:10px;overflow:hidden;margin-bottom:14px;">
+      <div class="mx-cell hd"></div>
+      <div class="mx-cell hd" style="color:var(--red);">四大事務所</div>
+      <div class="mx-cell hd" style="color:var(--B);">中型顧問</div>
+      <div class="mx-cell hd" style="color:var(--A);">軟體商</div>
+      <div class="mx-cell hd" style="color:var(--C);">Solvyn AI</div>
+
+      <div class="mx-cell row-hd">可負擔費用<br><span style="font-weight:400;color:var(--muted);">中小型上市可接受</span></div>
+      <div class="mx-cell bad"><span style="color:var(--red);">✗</span><br><span style="color:var(--muted);font-size:9px;">100萬+</span></div>
+      <div class="mx-cell mid"><span style="color:var(--B);">△</span><br><span style="color:var(--muted);font-size:9px;">30–80萬</span></div>
+      <div class="mx-cell mid"><span style="color:var(--B);">△</span><br><span style="color:var(--muted);font-size:9px;">軟體+顧問分開</span></div>
+      <div class="mx-cell good"><span style="color:var(--C);">✓</span><br><span style="color:var(--muted);font-size:9px;">年訂閱制</span></div>
+
+      <div class="mx-cell row-hd">完整報告書<br><span style="font-weight:400;color:var(--muted);">GRI+IFRS全流程</span></div>
+      <div class="mx-cell good"><span style="color:var(--C);">✓</span></div>
+      <div class="mx-cell good"><span style="color:var(--C);">✓</span></div>
+      <div class="mx-cell bad"><span style="color:var(--red);">✗</span><br><span style="color:var(--muted);font-size:9px;">只做盤查數據</span></div>
+      <div class="mx-cell good"><span style="color:var(--C);">✓</span></div>
+
+      <div class="mx-cell row-hd">規模化服務<br><span style="font-weight:400;color:var(--muted);">同時服務100家+</span></div>
+      <div class="mx-cell bad"><span style="color:var(--red);">✗</span><br><span style="color:var(--muted);font-size:9px;">人力上限</span></div>
+      <div class="mx-cell bad"><span style="color:var(--red);">✗</span><br><span style="color:var(--muted);font-size:9px;">每年幾十件</span></div>
+      <div class="mx-cell mid"><span style="color:var(--B);">△</span><br><span style="color:var(--muted);font-size:9px;">軟體可擴展</span></div>
+      <div class="mx-cell good"><span style="color:var(--C);">✓</span><br><span style="color:var(--muted);font-size:9px;">AI無上限</span></div>
+
+      <div class="mx-cell row-hd">法規即時更新<br><span style="font-weight:400;color:var(--muted);">自動同步最新版本</span></div>
+      <div class="mx-cell mid"><span style="color:var(--B);">△</span><br><span style="color:var(--muted);font-size:9px;">靠人工研究</span></div>
+      <div class="mx-cell bad"><span style="color:var(--red);">✗</span><br><span style="color:var(--muted);font-size:9px;">更新滯後常見</span></div>
+      <div class="mx-cell bad"><span style="color:var(--red);">✗</span><br><span style="color:var(--muted);font-size:9px;">軟體不管法規</span></div>
+      <div class="mx-cell good"><span style="color:var(--C);">✓</span><br><span style="color:var(--muted);font-size:9px;">自動同步</span></div>
+
+      <div class="mx-cell row-hd">Scope 3 執行<br><span style="font-weight:400;color:var(--muted);">供應鏈數據收集</span></div>
+      <div class="mx-cell mid"><span style="color:var(--B);">△</span><br><span style="color:var(--muted);font-size:9px;">框架顧問</span></div>
+      <div class="mx-cell bad"><span style="color:var(--red);">✗</span><br><span style="color:var(--muted);font-size:9px;">通常迴避</span></div>
+      <div class="mx-cell bad"><span style="color:var(--red);">✗</span><br><span style="color:var(--muted);font-size:9px;">不處理</span></div>
+      <div class="mx-cell good"><span style="color:var(--C);">✓</span><br><span style="color:var(--muted);font-size:9px;">自動化供應鏈</span></div>
+
+      <div class="mx-cell row-hd">數據可追溯<br><span style="font-weight:400;color:var(--muted);">每筆有計算底稿</span></div>
+      <div class="mx-cell good"><span style="color:var(--C);">✓</span></div>
+      <div class="mx-cell mid"><span style="color:var(--B);">△</span></div>
+      <div class="mx-cell mid"><span style="color:var(--B);">△</span></div>
+      <div class="mx-cell good"><span style="color:var(--C);">✓</span><br><span style="color:var(--muted);font-size:9px;">系統化底稿</span></div>
+    </div>
+    <div class="hl-box b-C">
+      <p><strong class="c-C">🎯 我們的甜蜜點</strong>：只有 Solvyn AI 同時做到「可負擔 ＋ 完整報告書 ＋ 規模化 ＋ 法規即時 ＋ Scope 3 執行 ＋ 數據可追溯」六項全綠。<strong>這個組合在市場上目前沒有競爭者。</strong></p>
+    </div>
+  </div>
+  <div class="progress-line"><div class="progress-fill" style="width:66.6%"></div></div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- C3: 定價策略 -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="slide" id="s9" data-sec="C">
+<div class="sb"><div class="sb-logo">S</div>
+  <div class="sb-sec" data-sec="A" onclick="jumpSec('A')">A</div>
+  <div class="sb-sec" data-sec="B" onclick="jumpSec('B')">B</div>
+  <div class="sb-sec active-sec" data-sec="C" onclick="jumpSec('C')">C</div>
+  <div class="sb-sec" data-sec="D" onclick="jumpSec('D')">D</div>
+  <div class="sb-dot-wrap"></div>
+</div>
+<div class="main">
+  <div class="hdr">
+    <span class="hdr-chip" style="background:rgba(0,229,160,.15);color:var(--C);">C · 產品定位</span>
+    <div class="hdr-title">定價策略 × 商業模式 × 核心 Messaging</div>
+    <div class="hdr-sub"><span class="hdr-pg">C-3 / 3</span></div>
+  </div>
+  <div class="body">
+    <div class="g2" style="margin-bottom:12px;">
+      <div class="col">
+        <div class="card-title c-C" style="font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:4px;">💰 建議定價框架（參考）</div>
+        <table class="tbl" style="font-size:10.5px;">
+          <thead><tr><th>方案</th><th>目標客群</th><th>參考費用/年</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><strong style="color:var(--A);">Starter</strong><br><span style="color:var(--muted);font-size:9px;">盤查+報告基礎版</span></td>
+              <td>資本額 50億以下<br>首次申報</td>
+              <td><strong>8–15萬/年</strong><br><span style="color:var(--muted);font-size:9px;">vs 傳統顧問 30萬+</span></td>
+            </tr>
+            <tr>
+              <td><strong style="color:var(--B);">Professional</strong><br><span style="color:var(--muted);font-size:9px;">完整三 Agent 服務</span></td>
+              <td>資本額 50–100億<br>需 IFRS S1/S2</td>
+              <td><strong>20–40萬/年</strong><br><span style="color:var(--muted);font-size:9px;">vs 傳統顧問 60–100萬</span></td>
+            </tr>
+            <tr>
+              <td><strong style="color:var(--C);">Enterprise</strong><br><span style="color:var(--muted);font-size:9px;">含 Scope 3 + 多子公司</span></td>
+              <td>資本額 100億+<br>集團多廠</td>
+              <td><strong>50–100萬/年</strong><br><span style="color:var(--muted);font-size:9px;">vs 四大 150萬+</span></td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="hl-box b-C" style="margin-top:4px;">
+          <p style="font-size:10.5px;"><strong class="c-C">定價邏輯</strong>：對標傳統顧問定價的 <strong>30–50% 折扣</strong>，讓客戶感受到明顯的成本節省，同時我們毛利率遠高於人力顧問（邊際成本低）。</p>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card-title c-C" style="font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:4px;">🎯 核心 Messaging（對客戶說的話）</div>
+        <div class="row-item" style="border-color:rgba(0,229,160,.2);">
+          <div class="icon">🔑</div>
+          <div><strong>One-liner（一句話定位）</strong><span>「把 ESG 合規從每年最痛的 3 個月專案，變成自動執行的系統。」</span></div>
+        </div>
+        <div class="row-item" style="border-color:rgba(0,229,160,.2);">
+          <div class="icon">💡</div>
+          <div><strong>對不懂 ESG 的老闆說</strong><span>「法規不做會被罰，供應鏈會被踢。我們幫你在最短時間、最低費用做完，你不需要懂怎麼做。」</span></div>
+        </div>
+        <div class="row-item" style="border-color:rgba(0,229,160,.2);">
+          <div class="icon">📊</div>
+          <div><strong>對負責申報的永續長說</strong><span>「數據收集、法規映射、報告撰寫，AI 全部做完草稿，你只需要審閱確認。3 週完成以前要 3 個月的工作。」</span></div>
+        </div>
+        <div class="row-item" style="border-color:rgba(0,229,160,.2);">
+          <div class="icon">🚀</div>
+          <div><strong>對 CFO 說</strong><span>「每年 ESG 顧問費 30–100 萬，我們用年訂閱 20–40 萬搞定，且數據可追溯，第三方確信準備時間縮短 80%。」</span></div>
+        </div>
+        <div class="row-item" style="border-color:rgba(0,229,160,.2);">
+          <div class="icon">🌐</div>
+          <div><strong>對出口製造業說</strong><span>「Apple 和 NVIDIA 都在要你的 Scope 3 數據，我們幫你自動收集供應鏈數據，不要被踢出供應鏈。」</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="progress-line"><div class="progress-fill" style="width:75%"></div></div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- D1: 客群分層 -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="slide" id="s10" data-sec="D">
+<div class="sb"><div class="sb-logo">S</div>
+  <div class="sb-sec" data-sec="A" onclick="jumpSec('A')">A</div>
+  <div class="sb-sec" data-sec="B" onclick="jumpSec('B')">B</div>
+  <div class="sb-sec" data-sec="C" onclick="jumpSec('C')">C</div>
+  <div class="sb-sec active-sec" data-sec="D" onclick="jumpSec('D')">D</div>
+  <div class="sb-dot-wrap"></div>
+</div>
+<div class="main">
+  <div class="hdr">
+    <span class="hdr-chip" style="background:rgba(167,139,250,.15);color:var(--D);">D · 目標客群</span>
+    <div class="hdr-title">客群分層與優先順序：誰最該先打、為什麼</div>
+    <div class="hdr-sub"><span class="hdr-pg">D-1 / 3</span></div>
+  </div>
+  <div class="body">
+    <div class="g3" style="margin-bottom:12px;">
+      <div class="card" style="border-top:3px solid var(--C);">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+          <span class="badge" style="background:rgba(0,229,160,.2);color:var(--C);font-size:11px;">Priority 1 🎯</span>
+          <span style="font-size:11px;font-weight:700;color:var(--white);">資本額 20–50億 出口製造業</span>
+        </div>
+        <div class="card-body">
+          <strong>規模：</strong>約 600–800 家上市公司<br>
+          <strong>痛點：</strong>2026 年 Scope 1&2 個體確信到期，同時受 Apple/NVIDIA 供應鏈壓力<br>
+          <strong>現況：</strong>通常無永續部門，靠 1–2 人兼職做，每年找顧問或隨便交差<br>
+          <strong>決策者：</strong>總經理 / CFO（預算），永續窗口（執行）<br>
+          <strong>切入理由：</strong>時間壓力最急、費用最敏感、傳統顧問服務最不到位
+        </div>
+      </div>
+      <div class="card" style="border-top:3px solid var(--B);">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+          <span class="badge" style="background:rgba(255,184,0,.2);color:var(--B);font-size:11px;">Priority 2 📌</span>
+          <span style="font-size:11px;font-weight:700;color:var(--white);">資本額 50–100億 製造業</span>
+        </div>
+        <div class="card-body">
+          <strong>規模：</strong>約 200–300 家<br>
+          <strong>痛點：</strong>2025 年就要完成個體盤查，2027 年要做合併子公司，IFRS S1/S2 從 2027 開始<br>
+          <strong>現況：</strong>可能有小型永續部門（1–3 人），已做過盤查但系統化不足<br>
+          <strong>決策者：</strong>有永續長或 ESG 委員會，但預算仍需 CFO 批<br>
+          <strong>切入理由：</strong>他們知道問題在哪、有預算意願，但現有方式效率低，願意嘗試更好的工具
+        </div>
+      </div>
+      <div class="card" style="border-top:3px solid var(--muted);">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+          <span class="badge" style="background:rgba(139,163,193,.15);color:var(--muted);font-size:11px;">Priority 3 📋</span>
+          <span style="font-size:11px;font-weight:700;color:var(--white);">資本額 100億↑（非四大客戶）</span>
+        </div>
+        <div class="card-body">
+          <strong>規模：</strong>約 200 家，但很多已是四大客戶<br>
+          <strong>痛點：</strong>Scope 3 揭露 2030 年到期，合併子公司覆蓋複雜<br>
+          <strong>現況：</strong>有永續部門，但 Scope 3 和多子公司整合是難題<br>
+          <strong>決策者：</strong>永續長為主，需要 C-level 背書<br>
+          <strong>切入理由：</strong>Scope 3 和子公司整合是我們的技術優勢切入點，但銷售週期長
+        </div>
+      </div>
+    </div>
+    <div class="g2">
+      <div class="hl-box b-D">
+        <p><strong class="c-D">📌 最佳首攻目標的特徵</strong>：出口比例高（有 CBAM/供應鏈壓力）× 資本額 20–80 億 × 製造業（有具體碳排源、數據可計算）× 曾被供應鏈客戶要求提供碳數據但做不出來。<strong>這群人是需求最迫切 + 最買單的組合。</strong></p>
+      </div>
+      <div class="hl-box b-C">
+        <p><strong class="c-C">⚠️ 應避開的客群</strong>：純內需服務業（餐飲、零售）、資本額 20 億以下非上市公司（法規壓力尚未到）、已是四大長期合約客戶（轉換成本高）。這些不是我們的仗。</p>
+      </div>
+    </div>
+  </div>
+  <div class="progress-line"><div class="progress-fill" style="width:83.3%"></div></div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- D2: 切入時機與話術 -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="slide" id="s11" data-sec="D">
+<div class="sb"><div class="sb-logo">S</div>
+  <div class="sb-sec" data-sec="A" onclick="jumpSec('A')">A</div>
+  <div class="sb-sec" data-sec="B" onclick="jumpSec('B')">B</div>
+  <div class="sb-sec" data-sec="C" onclick="jumpSec('C')">C</div>
+  <div class="sb-sec active-sec" data-sec="D" onclick="jumpSec('D')">D</div>
+  <div class="sb-dot-wrap"></div>
+</div>
+<div class="main">
+  <div class="hdr">
+    <span class="hdr-chip" style="background:rgba(167,139,250,.15);color:var(--D);">D · 目標客群</span>
+    <div class="hdr-title">切入時機 × 話術框架 × 常見異議處理</div>
+    <div class="hdr-sub"><span class="hdr-pg">D-2 / 3</span></div>
+  </div>
+  <div class="body">
+    <div class="g2" style="margin-bottom:12px;">
+      <div class="col">
+        <div class="card-title c-D" style="font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:4px;">📅 最佳切入時間點</div>
+        <div class="row-item"><div class="icon">🔥</div><div><strong>Q4（10–12月）</strong><span><strong>最佳時機</strong>。客戶剛結束今年申報、開始想明年的事，預算規劃期，最容易啟動評估和導入。</span></div></div>
+        <div class="row-item"><div class="icon">⚡</div><div><strong>Q1（1–3月）</strong><span><strong>緊急切入</strong>。8月31日截止，客戶開始焦慮，急找解法，這時切入願意嘗試新方案的意願高但時間緊。</span></div></div>
+        <div class="row-item"><div class="icon">💡</div><div><strong>剛收到客戶稽核要求</strong><span>Apple、NVIDIA 等大廠發出供應鏈碳揭露要求時，這家供應商立刻就是熱門潛在客戶，需要立即行動。</span></div></div>
+        <div class="row-item"><div class="icon">📋</div><div><strong>金管會宣布新法規後</strong><span>每次法規公告後 1–2 個月，企業 ESG 關鍵字搜尋量和詢問量都會暴增，是主動出擊的好時機。</span></div></div>
+      </div>
+      <div class="col">
+        <div class="card-title c-D" style="font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:4px;">🛡️ 常見異議 × 最佳回應</div>
+        <div class="row-item"><div class="icon">❓</div><div><strong>「我們已經有顧問在做了」</strong><span>→「顧問都做得很慢，費用也不便宜。我們不是取代顧問，而是讓你們的流程快 3 倍、費用省一半，且數據有底稿可查核。」</span></div></div>
+        <div class="row-item"><div class="icon">❓</div><div><strong>「現在還不急，Scope 3 有緩衝」</strong><span>→「法規可以等，你的客戶（Apple/NVIDIA）不等人。而且現在開始建數據基線，等真的要交的時候成本最低。」</span></div></div>
+        <div class="row-item"><div class="icon">❓</div><div><strong>「AI 做的報告書可以用嗎？」</strong><span>→「AI 生成草稿，你們的永續窗口做最終審核和確認。第三方查驗的是數據，不是誰寫的文章。數據有完整底稿才是關鍵。」</span></div></div>
+        <div class="row-item"><div class="icon">❓</div><div><strong>「怕數據外洩」</strong><span>→「我們的碳排放數據是最終要公開揭露的，不是機密。我們的系統有資安認證，比跨部門 Email 傳 Excel 還安全。」</span></div></div>
+      </div>
+    </div>
+    <div class="hl-box b-D">
+      <p><strong class="c-D">🎤 開場話術框架（30秒版本）</strong>：「現在台灣有超過 1,800 家上市公司每年要做 ESG 報告書，一般找顧問要花 3 個月、30 萬起跳。我們用 AI 把這件事壓縮到 3 週，費用是顧問的一半，而且法規永遠自動更新。你們今年的報告書是怎麼做的？」<strong>（最後一句把球丟給對方，讓他說痛點）</strong></p>
+    </div>
+  </div>
+  <div class="progress-line"><div class="progress-fill" style="width:91.6%"></div></div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- D3: 銷售漏斗 -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="slide" id="s12" data-sec="D">
+<div class="sb"><div class="sb-logo">S</div>
+  <div class="sb-sec" data-sec="A" onclick="jumpSec('A')">A</div>
+  <div class="sb-sec" data-sec="B" onclick="jumpSec('B')">B</div>
+  <div class="sb-sec" data-sec="C" onclick="jumpSec('C')">C</div>
+  <div class="sb-sec active-sec" data-sec="D" onclick="jumpSec('D')">D</div>
+  <div class="sb-dot-wrap"></div>
+</div>
+<div class="main">
+  <div class="hdr">
+    <span class="hdr-chip" style="background:rgba(167,139,250,.15);color:var(--D);">D · 目標客群</span>
+    <div class="hdr-title">銷售漏斗 × 每階段任務 × KPI</div>
+    <div class="hdr-sub"><span class="hdr-pg">D-3 / 3</span></div>
+  </div>
+  <div class="body">
+    <div class="g2">
+      <div class="funnel">
+        <div class="funnel-step b-A">
+          <div class="funnel-n c-A">1</div>
+          <div><div class="funnel-title">發現（Awareness）</div><div class="funnel-desc">目標：讓潛在客戶知道我們存在 × 方法：展覽（InnoVEX/AI Taiwan）、ESG 法規內容行銷、LinkedIn、冷開發（Cold Email/Call）</div></div>
+        </div>
+        <div class="funnel-step b-B">
+          <div class="funnel-n c-B">2</div>
+          <div><div class="funnel-title">興趣（Interest）</div><div class="funnel-desc">目標：引發「想了解更多」× 話術：「免費 ESG 現況診斷」或「30分鐘法規說明會」。這時客戶通常會分享他們的現況，你就知道痛點在哪。</div></div>
+        </div>
+        <div class="funnel-step b-C">
+          <div class="funnel-n c-C">3</div>
+          <div><div class="funnel-title">評估（Evaluation）</div><div class="funnel-desc">目標：Demo 讓客戶親眼看見 AI 的速度 × 做法：現場演示 AI 在 2 分鐘生成碳盤查草稿，展示數據串接和 GRI 映射效果。這是最關鍵的一步。</div></div>
+        </div>
+        <div class="funnel-step b-D">
+          <div class="funnel-n c-D">4</div>
+          <div><div class="funnel-title">決策（Decision）</div><div class="funnel-desc">目標：拿到合約 × 做法：提供客製化提案（依資本額、產業、時程），明確列出費用節省試算 vs 傳統顧問，提供試用期或分期選項降低風險。</div></div>
+        </div>
+        <div class="funnel-step" style="border-color:rgba(0,229,160,.3);background:rgba(0,229,160,.08);">
+          <div class="funnel-n c-C">5</div>
+          <div><div class="funnel-title">擴展（Expansion）</div><div class="funnel-desc">目標：客戶續約 + 升方案 + 轉介紹 × 做法：每年申報後提供成效報告，主動推薦升方案（加 Scope 3、加子公司），請滿意客戶轉介紹供應鏈同業。</div></div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card-title c-D" style="font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px;">📊 建議追蹤 KPI</div>
+        <table class="tbl">
+          <thead><tr><th>漏斗階段</th><th>KPI 指標</th><th>參考目標</th></tr></thead>
+          <tbody>
+            <tr><td>發現</td><td>每月新觸及潛在客群數</td><td>50+ 家/月</td></tr>
+            <tr><td>興趣</td><td>每月診斷/說明會預約</td><td>10+ 次/月</td></tr>
+            <tr><td>評估</td><td>Demo 轉換率</td><td>目標 60%+</td></tr>
+            <tr><td>決策</td><td>Demo to 成交率</td><td>目標 30%+</td></tr>
+            <tr><td>擴展</td><td>年續約率</td><td>目標 80%+</td></tr>
+            <tr><td>擴展</td><td>轉介紹比例</td><td>目標 20%+</td></tr>
+          </tbody>
+        </table>
+        <div class="hl-box b-D" style="margin-top:8px;">
+          <p><strong class="c-D">🔑 最重要的一步是第 3 步（Demo）</strong>。傳統 ESG 顧問根本沒有 Demo，我們的 AI 2 分鐘生成草稿是最強的武器。這一步做好，成交率大幅提升。記得：Demo 結束後立刻問：「你們預計什麼時候要開始準備今年的報告書？」把時間軸拉出來。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="progress-line"><div class="progress-fill" style="width:100%"></div></div>
+</div>
+</div>
+
+<!-- NAV -->
+<div class="nav">
+  <button onclick="go(-1)">◀</button>
+  <span class="nav-cur" id="nav-cur">A-1 · 法規三條主線</span>
+  <button onclick="go(1)">▶</button>
+</div>
+
+<script>
+const slides = document.querySelectorAll('.slide');
+const N = slides.length;
+let cur = 0;
+
+const titles = [
+  'A-1 · 法規三條主線', 'A-2 · 盤查時程詳表', 'A-3 · 罰則與後果',
+  'B-1 · 市場全貌', 'B-2 · 競爭者深度比較', 'B-3 · 競爭者弱點',
+  'C-1 · 三大 Agent', 'C-2 · 差異化矩陣', 'C-3 · 定價策略',
+  'D-1 · 客群分層', 'D-2 · 話術框架', 'D-3 · 銷售漏斗'
+];
+
+const secMap = { A:[0,1,2], B:[3,4,5], C:[6,7,8], D:[9,10,11] };
+
+function updateSB(idx) {
+  // update active section chips in all sidebars
+  document.querySelectorAll('.sb-sec').forEach(el => {
+    const sec = el.dataset.sec;
+    const active = secMap[sec] && secMap[sec].includes(idx);
+    el.classList.toggle('active-sec', active);
+  });
+  updateDots(idx);
+}
+
+function updateDots(idx) {
+  const dotWrap = slides[idx].querySelector('.sb-dot-wrap');
+  if (!dotWrap) return;
+  dotWrap.innerHTML = '';
+  for (let i = 0; i < N; i++) {
+    const d = document.createElement('div');
+    d.className = 'sb-dot' + (i === idx ? ' active' : '');
+    d.onclick = () => goTo(i);
+    dotWrap.appendChild(d);
+  }
+}
+
+function go(d) { goTo((cur + d + N) % N); }
+
+function goTo(idx) {
+  slides[cur].classList.remove('active');
+  cur = idx;
+  slides[cur].classList.add('active');
+  document.getElementById('nav-cur').textContent = titles[cur];
+  updateSB(cur);
+}
+
+function jumpSec(sec) {
+  const first = secMap[sec][0];
+  goTo(first);
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') go(1);
+  if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') go(-1);
+});
+
+// init
+updateSB(0);
+updateDots(0);
+</script>
+</body>
+</html>
